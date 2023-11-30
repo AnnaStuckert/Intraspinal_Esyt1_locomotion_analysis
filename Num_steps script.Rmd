@@ -1,0 +1,215 @@
+---
+title: "Untitled"
+output: html_document
+date: '2023-03-29'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(pacman)
+p_load(tidyverse, ggsignif,multcomp, broom, emmeans, DescTools)
+setwd("~/Documents/ESYT1_spinal_locomotion_analysis/Increasing N/Ventral/data 20230811 USE THIS (duplicates erased :changed with new videos)/") 
+df_49<- read.table("speedProfile_p49.csv", sep="\t", header=T)
+df_49$Name <- sub("p49_", "", df_49$Name)
+df_56<- read.table("speedProfile_p56.csv", sep="\t", header=T)
+df_56$Name <- sub("p56_", "", df_56$Name)
+df_63<- read.table("speedProfile_p63.csv", sep="\t", header=T)
+df_63$Name <- sub("p63_", "", df_63$Name)
+df_70<- read.table("speedProfile_p70.csv", sep="\t", header=T)
+df_70$Name <- sub("p70_", "", df_70$Name)
+df_77<- read.table("speedProfile_p77.csv", sep="\t", header=T)
+df_77$Name <- sub("p77_", "", df_77$Name)
+df_84<- read.table("speedProfile_p84.csv", sep="\t", header=T)
+df_84$Name <- sub("p84_", "", df_84$Name)
+df_91<- read.table("speedProfile_p91.csv", sep="\t", header=T) 
+df_91$Name <- sub("p91_", "", df_91$Name)
+df_98<- read.table("speedProfile_p98.csv", sep="\t", header=T)
+df_98$Name <- sub("p98_", "", df_98$Name)
+df_105<- read.table("speedProfile_p105.csv", sep="\t", header=T)
+df_105$Name <- sub("p105_", "", df_105$Name)
+df_112<- read.table("speedProfile_p112.csv", sep="\t", header=T)
+df_112$Name <- sub("p112_", "", df_112$Name)
+df_112_237<- read.table("speedProfile_p112_237.csv", sep="\t", header=T)
+df_91_44<- read.table("speedProfile_p91_44.csv", sep="\t", header=T)
+p70_56_p91_235<- read.table("p70_56_p91_235_last2.csv", sep="\t", header=T)
+
+df_49$Name <- paste("p49", df_49$Name, sep="_")
+
+df_56$Name <- paste("p56", df_56$Name, sep="_")
+
+df_63$Name <- paste("p63", df_63$Name, sep="_")
+
+df_70$Name <- paste("p70", df_70$Name, sep="_")
+
+df_77$Name <- paste("p77", df_77$Name, sep="_")
+
+df_84$Name <- paste("p84", df_84$Name, sep="_")
+
+df_91$Name <- paste("p91", df_91$Name, sep="_")
+
+df_98$Name <- paste("p98", df_98$Name, sep="_")
+
+df_105$Name <- paste("p105", df_105$Name, sep="_")
+
+df_112$Name <- paste("p112", df_112$Name, sep="_")
+
+df_112_237$Name <- paste("p112", df_112_237$Name, sep="_")
+
+df_91_44$Name <- paste("p91", df_91_44$Name, sep="_")
+
+
+setwd("~/Documents/ESYT1_spinal_locomotion_analysis/Increasing N/Ventral/")
+df1<- read.table("ventral speedProfile increase N.csv", sep="\t", header=T)
+df <- rbind(df_49,df_56, df_63, df_70, df_77, df_84, df_91, df_98, df_105, df_112, df_112_237, df_91_44, p70_56_p91_235, df1)
+#df <- rbind(df_49,df_56, df_63, df_70, df_77, df_84, df_91, df_98, df_105, df_112, df_112_237, df_91_44, p70_56_p91_235)
+
+
+
+df_select <- dplyr::select(df, Name, Num_steps)
+colnames(df_select)[1] <- "filename"
+
+```
+
+
+```{r}
+df2 <- df_select
+df2$time_point <- 0
+df2$time_point <- ifelse(grepl('p49_', df2$filename), 49, df2$time_point)
+df2$time_point <- ifelse(grepl('p56_', df2$filename), 56, df2$time_point)
+df2$time_point <- ifelse(grepl('p63_', df2$filename), 63, df2$time_point)
+df2$time_point <- ifelse(grepl('p70_', df2$filename), 70, df2$time_point)
+df2$time_point <- ifelse(grepl('p77_', df2$filename), 77, df2$time_point)
+df2$time_point <- ifelse(grepl('p84_', df2$filename), 84, df2$time_point)
+df2$time_point <- ifelse(grepl('p91_', df2$filename), 91, df2$time_point)
+df2$time_point <- ifelse(grepl('p98_', df2$filename), 98, df2$time_point)
+df2$time_point <- ifelse(grepl('p105_', df2$filename), 105, df2$time_point)
+df2$time_point <- ifelse(grepl('p112_', df2$filename), 112, df2$time_point)
+
+
+df2$filename <- sub("_SIDEVIEW", "", df2$filename)
+df2$filename <- sub("SIDEVIEW_", "", df2$filename)
+df2$filename <- sub("_bottom", "", df2$filename)
+ 
+
+ 
+```
+
+
+Give each mouse own number
+```{r}
+
+df2$mouse_number <- 0
+
+#SOD1En1cre
+df2$mouse_number <- ifelse(grepl('489_', df2$filename), '489', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_19_', df2$filename), '19', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_50_', df2$filename), '50', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_237_', df2$filename), '237', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_239_', df2$filename), '239', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_318_', df2$filename), '318', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_44_', df2$filename), '44', df2$mouse_number)
+
+#En1cre
+df2$mouse_number <- ifelse(grepl('493_', df2$filename), '493', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('495_', df2$filename), '495', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_9_', df2$filename), '9', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_19E_', df2$filename), '19E', df2$mouse_number) 
+df2$mouse_number <- ifelse(grepl('_33_', df2$filename), '33', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_80_', df2$filename), '80', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_42_', df2$filename), '42', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_48_', df2$filename), '48', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_62_', df2$filename), '62', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_66_', df2$filename), '66', df2$mouse_number)
+
+#SOD1
+df2$mouse_number <- ifelse(grepl('491_', df2$filename), '491', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_17_', df2$filename), '17', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_21_', df2$filename), '21', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_52_', df2$filename), '52', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_56_', df2$filename), '56', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_233_', df2$filename), '233', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_235_', df2$filename), '235', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_320_', df2$filename), '320', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_1_', df2$filename), '1', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_7_', df2$filename), '7', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_40_', df2$filename), '40', df2$mouse_number)
+
+#WT
+df2$mouse_number <- ifelse(grepl('487_', df2$filename), '487', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('620_', df2$filename), '620', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('622_', df2$filename), '622', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_11_', df2$filename), '11', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_13_', df2$filename), '13', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_15_', df2$filename), '15', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_54_', df2$filename), '54', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_316_', df2$filename), '316', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_3_', df2$filename), '3', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_5_', df2$filename), '5', df2$mouse_number)
+df2$mouse_number <- ifelse(grepl('_46_', df2$filename), '46', df2$mouse_number)
+
+
+setwd("~/Documents/ESYT1_spinal_locomotion_analysis/Increasing N/Weight support (original and +N cohort) 27:10:2023/") 
+ write_csv(df2, "num_steps_new.csv")
+```
+
+```{r}
+df2$mouse_number<- as.numeric(df2$mouse_number) #Change mouse number from class character to class numeric
+df2<-df2[!(df2$mouse_number==80 | df2$mouse_number==1 | df2$mouse_number == 7),] 
+
+
+
+df_WS%>%
+   group_by(filename) %>%
+   filter(n() > 1) %>%
+   ungroup
+```
+
+Check if there is missing data between WS files and ventral analysis files
+```{r}
+df_WS <- read.csv("WS_mean_new_method.csv", header=T)
+
+#This sectin was used for checking for missing videos in either/both the ventral videos list, or the ltaeral videos list included for weight support analysis.
+#check for missing in WS
+for (i in df_WS$filename) {
+  df_WS$match_surv <- ifelse(match(df_WS$filename, df2$filename), 0, df_WS$filename)
+  df_WS$excess_survey_id <- ifelse(is.na(df_WS$match_surv), df_WS$filename, NA)
+  return(df_WS)
+}
+sum(!is.na(df_WS$excess_survey_id))
+
+for (i in df_WS$filename) {
+  df_WS$match_surv <- ifelse(match(df_WS$filename, df2$filename), 0, df_WS$filename)
+  df_WS$excess_survey_id <- ifelse(is.na(df_WS$match_surv), df_WS$filename, NA)
+  return(df_WS)
+}
+sum(!is.na(df_WS$excess_survey_id))
+
+
+
+
+for (i in df2$filename) {
+  df2$match_surv <- ifelse(match(df2$filename,df_WS$filename), 0, df2$filename)
+  df2$excess_survey_id <- ifelse(is.na(df2$match_surv), df2$filename, NA)
+  return(df2)
+}
+
+
+#check for missing in ventral
+df3 <- df
+for (i in df3$Name) {
+  df$match_surv <- ifelse(df3$Name, match(df_WS$filename), 0, df3$Name)
+  return(df3)
+}
+sum(!is.na(df_WS$excess_survey_id))
+```
+
+Writing CSV files for the total list of entries for ventral videos and lateral videos for Ilary to review.
+```{r}
+write_csv(df2, "Ventral_videos included for analysis 20230811.csv")
+write_csv(df_WS, "lateral_videos weight support included for analysis 20230811.csv")
+
+```
+
